@@ -21,7 +21,7 @@ def prepare(name, settings):
     for path in inputs:
         digest.update(str(path.relative_to(ROOT)).encode())
         digest.update(path.read_bytes())
-    stamp = target / '.paperclip-source-hash'
+    stamp = target / '.xbtpay-source-hash'
     expected = digest.hexdigest()
     if target.exists():
         if stamp.exists() and stamp.read_text() == expected:
@@ -36,7 +36,7 @@ def prepare(name, settings):
     run('git', 'apply', str(patch), cwd=target)
     if name == 'btcpay':
         shutil.copytree(ROOT / 'src', target, dirs_exist_ok=True)
-        (target / 'Paperclip' / 'nuget').mkdir(parents=True, exist_ok=True)
+        (target / 'XBTPay' / 'nuget').mkdir(parents=True, exist_ok=True)
     stamp.write_text(expected)
 
 if __name__ == '__main__':

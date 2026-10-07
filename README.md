@@ -1,8 +1,9 @@
-# Paperclip XBT for BTCPay Server
+# XBTPay
 
 **Beta · Not independently audited · Receiving integration**
 
-Accept Bitcoin BLAKE2b (**XBT**, also known as **BTCB2**) on-chain and over
+**XBTPay** is a self-hosted Bitcoin payment processor built on BTCPay Server.
+Accept Bitcoin (**XBT**, also known as **BTCB2**) on-chain and over
 Lightning in BTCPay Server, with **Core Lightning (CLN) or LND** as the
 Lightning backend. Choose on-chain, Lightning, or both per store.
 
@@ -19,7 +20,7 @@ patches. Do not install the plugin DLL alone into an existing production server.
 - BOLT11 Lightning checkout using **CLN or LND**. The CLN gateway includes
   private-channel route hints; LND connects through its native REST API.
 - Independent **on-chain** and **Lightning** switches under
-  **Integrations → XBT payments**. They affect new invoices, not existing orders.
+  **Integrations → XBTPay**. They affect new invoices, not existing orders.
 - Invoice currencies **XBT**, **BTCB2** (exactly 1 XBT), and **XBTSATS**
   (100,000,000 sats per XBT). Payment methods retain canonical IDs
   `XBT-CHAIN` and `XBT-LN`; BTCB2 is an alternate pricing ticker.
@@ -59,6 +60,10 @@ installation; receiving payments requires inbound channel liquidity.
 
 ## Build
 
+The project name is **XBTPay**. The repository URL remains
+`connorslab/paperclip-btcpay-xbt`. BTCPay Server and NBXplorer remain the upstream
+engines; their licenses, API names and configuration prefixes are retained.
+
 ```sh
 git clone https://github.com/connorslab/paperclip-btcpay-xbt.git
 cd paperclip-btcpay-xbt
@@ -68,13 +73,36 @@ sh scripts/build.sh
 The script prepares upstream source under `.build`, applies the included patches,
 runs focused tests, builds the custom NBXplorer client package, and creates:
 
-- `paperclip-btcpay:xbt-beta`
-- `paperclip-nbxplorer:xbt-beta`
-- `paperclip-cln-gateway:xbt-beta`
+- `xbtpay-server:beta`
+- `xbtpay-nbxplorer:beta`
+- `xbtpay-cln-gateway:beta`
 
 Use `sh scripts/build.sh --test-only` to omit image builds. If sources change,
 move the affected generated `.build/btcpay` or `.build/nbxplorer` directory aside
 and rerun. Source preparation refuses to overwrite differing checkouts.
+
+## Branding and upgrades
+
+XBTPay supplies the default login logo, page title suffix, payment icon and
+orange/navy theme. Existing server names, uploaded logos, custom themes and
+store branding remain configurable. `XBT_ICON` and `XBT_SATS_LABEL` can override
+the payment icon and sats label; see `.env.example`. Upstream support links and
+attribution still identify BTCPay Server.
+
+Docker image names now use `xbtpay-server:beta`, `xbtpay-nbxplorer:beta` and
+`xbtpay-cln-gateway:beta`. Build these before using the updated Compose file.
+Keep the same checkout directory and Compose project name when upgrading, so
+existing bind-mounted data and the gateway volume remain attached. Do not move
+or recreate the databases as part of the rename.
+
+The plugin ID `Paperclip.XbtLightning`, CLN invoice prefix `paperclip-btcpay:`,
+service names, data paths, configuration variables and `XBT-CHAIN`/`XBT-LN`
+payment IDs intentionally remain stable. This preserves access to existing
+invoices and settings. The old payment icon file remains available for cached
+links. Generated builds now use `XBTPay/nuget` and `.xbtpay-source-hash`;
+move previous generated `.build` directories aside before rebuilding.
+
+This repository change does not automatically upgrade a running installation.
 
 ## Start an isolated installation
 

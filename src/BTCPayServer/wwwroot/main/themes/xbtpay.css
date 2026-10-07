@@ -1,0 +1,40 @@
+/* XBTPay defaults. Explicit operator themes and store branding take precedence. */
+:root {
+  --btcpay-brand-primary: #bf5600;
+  --btcpay-brand-secondary: #f58b32;
+  --btcpay-brand-tertiary: #984400;
+  --btcpay-brand-dark: #14263d;
+  --btcpay-primary-rgb: 191, 86, 0;
+  --btcpay-primary-accent: #984400;
+  --btcpay-primary-accent-rgb: 152, 68, 0;
+  --btcpay-primary-100: #fff0e3;
+  --btcpay-primary-100-rgb: 255, 240, 227;
+  --btcpay-primary-200: #ffdbbf;
+  --btcpay-primary-200-rgb: 255, 219, 191;
+  --btcpay-primary-300: #ffc08b;
+  --btcpay-primary-300-rgb: 255, 192, 139;
+  --btcpay-primary-400: #f58b32;
+  --btcpay-primary-400-rgb: 245, 139, 50;
+  --btcpay-primary-500: #bf5600;
+  --btcpay-primary-500-rgb: 191, 86, 0;
+  --btcpay-primary-600: #ad4d00;
+  --btcpay-primary-600-rgb: 173, 77, 0;
+  --btcpay-primary-700: #984400;
+  --btcpay-primary-700-rgb: 152, 68, 0;
+  --btcpay-primary-800: #7b3700;
+  --btcpay-primary-800-rgb: 123, 55, 0;
+  --btcpay-primary-900: #622c00;
+  --btcpay-primary-900-rgb: 98, 44, 0;
+}
+:root[data-btcpay-theme="dark"] {
+  --btcpay-body-link: #ffc08b;
+  --btcpay-body-link-rgb: 255, 192, 139;
+  --btcpay-body-link-accent: #ffdbbf;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-btcpay-theme="light"]) {
+    --btcpay-body-link: #ffc08b;
+    --btcpay-body-link-rgb: 255, 192, 139;
+    --btcpay-body-link-accent: #ffdbbf;
+  }
+}
