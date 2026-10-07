@@ -1,6 +1,6 @@
 services:
   web:
-    image: paperclip-btcpay:xbt-beta
+    image: xbtpay-server:beta
     user: "1000:1000"
     entrypoint: ["dotnet", "BTCPayServer.dll"]
     restart: unless-stopped
@@ -37,7 +37,7 @@ services:
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
   nbxplorer:
-    image: paperclip-nbxplorer:xbt-beta
+    image: xbtpay-nbxplorer:beta
     user: "1000:1000"
     restart: unless-stopped
     depends_on: [postgres]
@@ -58,7 +58,7 @@ services:
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
   gateway:
-    image: paperclip-cln-gateway:xbt-beta
+    image: xbtpay-cln-gateway:beta
     profiles: [cln]
     user: "1000:1000"
     group_add: ["${CLN_RPC_GID:-1000}"]

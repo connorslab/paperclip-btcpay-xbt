@@ -26,6 +26,25 @@ index d51e26f..5ededf9 100644
      <PackageReference Include="NicolasDorier.StandardConfiguration" Version="2.0.1" />
    </ItemGroup>
  </Project>
+diff --git a/BTCPayServer/Components/MainLogo/Default.cshtml b/BTCPayServer/Components/MainLogo/Default.cshtml
+index 275cbfb..fc4489f 100644
+--- a/BTCPayServer/Components/MainLogo/Default.cshtml
++++ b/BTCPayServer/Components/MainLogo/Default.cshtml
+@@ -6,12 +6,9 @@
+ @if (Theme.LogoUrl is not null)
+ {
+ 	var logoUrl = await UriResolver.Resolve(this.Context.Request.GetAbsoluteRootUri(), Theme.LogoUrl);
+-	<img src="@logoUrl" alt="BTCPay Server" class="main-logo main-logo-custom @Model.CssClass" />
++	<img src="@logoUrl" alt="XBTPay" class="main-logo main-logo-custom @Model.CssClass" />
+ }
+ else
+ {
+-    <svg xmlns="http://www.w3.org/2000/svg" role="img" alt="BTCPay Server" class="main-logo main-logo-btcpay @Model.CssClass">
+-        <use href="~/img/logo.svg#small" class="main-logo-btcpay--small"/>
+-        <use href="~/img/logo.svg#large" class="main-logo-btcpay--large"/>
+-    </svg>
++    <img src="~/imlegacy/xbtpay-wordmark.svg" asp-append-version="true" alt="XBTPay" class="main-logo main-logo-custom @Model.CssClass" />
+ }
 diff --git a/BTCPayServer/Configuration/DefaultConfiguration.cs b/BTCPayServer/Configuration/DefaultConfiguration.cs
 index 370db7d..480dd8e 100644
 --- a/BTCPayServer/Configuration/DefaultConfiguration.cs
@@ -88,27 +107,134 @@ index 9f7375d..69fba9e 100644
              // move most often used currencies up
              int pos = 0;
              InsertAt(currencies, "USD", pos++);
+diff --git a/BTCPayServer/Views/Shared/LayoutHead.cshtml b/BTCPayServer/Views/Shared/LayoutHead.cshtml
+index 018db66..bcb8859 100644
+--- a/BTCPayServer/Views/Shared/LayoutHead.cshtml
++++ b/BTCPayServer/Views/Shared/LayoutHead.cshtml
+@@ -19,7 +19,7 @@
+ {
+ <meta name="robots" content="noindex">
+ }
+-<title>@ViewData["Title"]</title>
++<title>@ViewData["Title"] · XBTPay</title>
+ @* CSS *@
+ @{
+     var isRtl = LocalizerService.IsRtl;
+@@ -46,8 +46,8 @@
+ }
+ else
+ {
+-    <meta name="theme-color" content="#51B13E">
+-    <link rel="icon" href="~/favicon.ico">
++    <meta name="theme-color" content="#14263d">
++    <link rel="icon" href="~/imlegacy/xbtpay.svg" type="image/svg+xml">
+     <link rel="apple-touch-icon" href="~/img/icons/icon-512x512.png">
+     <link rel="apple-touch-startup-image" href="~/img/splash.png">
+ }
+diff --git a/BTCPayServer/Views/Shared/LayoutHeadTheme.cshtml b/BTCPayServer/Views/Shared/LayoutHeadTheme.cshtml
+index cfe0f20..26925c2 100644
+--- a/BTCPayServer/Views/Shared/LayoutHeadTheme.cshtml
++++ b/BTCPayServer/Views/Shared/LayoutHeadTheme.cshtml
+@@ -23,6 +23,7 @@ else
+ {
+     <link href="~/main/themes/default.css" asp-append-version="true" rel="stylesheet" />
+     <link href="~/main/themes/default-dark.css" asp-append-version="true" rel="stylesheet" id="DarkThemeLinkTag" />
++    <link href="~/main/themes/xbtpay.css" asp-append-version="true" rel="stylesheet" />
+     <script src="~/js/theme-switch.js" asp-append-version="true"></script>
+     <noscript><style>.btcpay-theme-switch { display: none !important; }</style></noscript>
+ }
+diff --git a/BTCPayServer/Views/Shared/_Layout.cshtml b/BTCPayServer/Views/Shared/_Layout.cshtml
+index 1a8e3fc..27665a4 100644
+--- a/BTCPayServer/Views/Shared/_Layout.cshtml
++++ b/BTCPayServer/Views/Shared/_Layout.cshtml
+@@ -48,7 +48,7 @@
+             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="@StringLocalizer["Close"]">
+                 <vc:icon symbol="close"/>
+             </button>
+-            <span text-translate="true">Your access to BTCPay Server is over an unsecured network. If you are using the docker deployment method with NGINX and HTTPS is not available, you probably did not configure your DNS settings correctly. We disabled the register and login link so you don't leak your credentials.</span>
++            <span text-translate="true">Your access to XBTPay is over an unsecured network. If you are using the docker deployment method with NGINX and HTTPS is not available, you probably did not configure your DNS settings correctly. We disabled the register and login link so you don't leak your credentials.</span>
+         </div>
+     }
+     <vc:ui-extension-point location="layout-banner" />
+diff --git a/BTCPayServer/Views/Shared/_LayoutSignedOut.cshtml b/BTCPayServer/Views/Shared/_LayoutSignedOut.cshtml
+index 359d954..3ce7c38 100644
+--- a/BTCPayServer/Views/Shared/_LayoutSignedOut.cshtml
++++ b/BTCPayServer/Views/Shared/_LayoutSignedOut.cshtml
+@@ -47,7 +47,7 @@
+             <vc:main-logo />
+         </a>
+ 
+-		<h1 data-testid="header" class="h2 mb-3">@ViewLocalizer["Welcome to {0}", string.IsNullOrWhiteSpace(settings.ServerName) ? "BTCPay Server" : settings.ServerName]</h1>
++		<h1 data-testid="header" class="h2 mb-3">@ViewLocalizer["Welcome to {0}", string.IsNullOrWhiteSpace(settings.ServerName) ? "XBTPay" : settings.ServerName]</h1>
+         @if (ViewBag.ShowLeadText)
+         {
+             <p class="lead">
+diff --git a/BTCPayServer/Views/UIHome/Home.cshtml b/BTCPayServer/Views/UIHome/Home.cshtml
+index 950d839..a3e677a 100644
+--- a/BTCPayServer/Views/UIHome/Home.cshtml
++++ b/BTCPayServer/Views/UIHome/Home.cshtml
+@@ -3,12 +3,12 @@
+ @inject SettingsRepository SettingsRepository
+ @{
+     var settings = await SettingsRepository.GetSettingAsync<ServerSettings>() ?? new ServerSettings();
+-    ViewData.SetTitle(string.IsNullOrWhiteSpace(settings.ServerName) ? "BTCPay Server" : settings.ServerName);
++    ViewData.SetTitle(string.IsNullOrWhiteSpace(settings.ServerName) ? "XBTPay" : settings.ServerName);
+ }
+ 
+ <partial name="_StatusMessage" />
+ 
+-<h2>@ViewLocalizer["Welcome to {0}", string.IsNullOrWhiteSpace(settings.ServerName) ? "BTCPay Server" : settings.ServerName]</h2>
++<h2>@ViewLocalizer["Welcome to {0}", string.IsNullOrWhiteSpace(settings.ServerName) ? "XBTPay" : settings.ServerName]</h2>
+ 
+ @if (!Model.HasStore)
+ {
+diff --git a/BTCPayServer/Views/UIHome/SwaggerDocs.cshtml b/BTCPayServer/Views/UIHome/SwaggerDocs.cshtml
+index 5a4b4fd..72ba988 100644
+--- a/BTCPayServer/Views/UIHome/SwaggerDocs.cshtml
++++ b/BTCPayServer/Views/UIHome/SwaggerDocs.cshtml
+@@ -7,7 +7,7 @@
+ <!DOCTYPE html>
+ <html>
+ <head>
+-    <title>BTCPay Server Greenfield API</title>
++    <title>XBTPay Greenfield API</title>
+     <!-- needed for adaptive design -->
+     <meta charset="utf-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1">
+diff --git a/BTCPayServer/Views/UIHome/SwaggerDraftDocs.cshtml b/BTCPayServer/Views/UIHome/SwaggerDraftDocs.cshtml
+index 9bfae7c..0128416 100644
+--- a/BTCPayServer/Views/UIHome/SwaggerDraftDocs.cshtml
++++ b/BTCPayServer/Views/UIHome/SwaggerDraftDocs.cshtml
+@@ -7,7 +7,7 @@
+ <!DOCTYPE html>
+ <html>
+ <head>
+-    <title>DRAFT: BTCPay Server Greenfield API</title>
++    <title>DRAFT: XBTPay Greenfield API</title>
+     <!-- needed for adaptive design -->
+     <meta charset="utf-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1">
 diff --git a/Dockerfile b/Dockerfile
-index 6dc8726..2bc3bc8 100644
+index 6dc8726..01dc47d 100644
 --- a/Dockerfile
 +++ b/Dockerfile
 @@ -2,6 +2,7 @@ FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0.400-noble AS bu
  ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
  WORKDIR /source
  COPY nuget.config nuget.config
-+COPY Paperclip/nuget Paperclip/nuget
++COPY XBTPay/nuget XBTPay/nuget
  COPY Build/Common.csproj Build/Common.csproj
  COPY BTCPayServer.Abstractions/BTCPayServer.Abstractions.csproj BTCPayServer.Abstractions/BTCPayServer.Abstractions.csproj
  COPY BTCPayServer/BTCPayServer.csproj BTCPayServer/BTCPayServer.csproj
 diff --git a/nuget.config b/nuget.config
-index 071facf..060a195 100644
+index 071facf..7ffcc1c 100644
 --- a/nuget.config
 +++ b/nuget.config
 @@ -2,6 +2,7 @@
  <configuration>
    <packageSources>
      <clear />
-+    <add key="paperclip-xbt" value="Paperclip/nuget" />
++    <add key="xbtpay" value="XBTPay/nuget" />
      <add key="api.nuget.org" value="https://api.nuget.org/v3/index.json" />
    </packageSources>
  </configuration>

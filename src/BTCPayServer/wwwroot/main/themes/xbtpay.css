@@ -1,0 +1,7 @@
+/* XBTPay defaults. Explicit operator themes and store branding take precedence. */
+:root {
+  --btcpay-brand-primary: #bf5600;
+  --btcpay-brand-secondary: #f58b32;
+  --btcpay-brand-tertiary: #984400;
+  --btcpay-brand-dark: #14263d;
+}

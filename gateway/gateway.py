@@ -12,6 +12,7 @@ LISTEN = os.environ.get('GATEWAY_SOCKET', '/gateway/lightning-rpc')
 EXPECTED_NODE = os.environ.get('EXPECTED_NODE', '')
 ADVERTISE_HOST = os.environ.get('CLN_ADVERTISE_HOST', '')
 ADVERTISE_PORT = int(os.environ.get('CLN_ADVERTISE_PORT', '9735'))
+# Persisted invoice ownership boundary: retain across the XBTPay rename.
 PREFIX = 'paperclip-btcpay:'
 LIMIT = 262144
 

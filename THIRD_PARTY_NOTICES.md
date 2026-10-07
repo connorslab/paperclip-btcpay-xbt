@@ -9,4 +9,5 @@ BouncyCastle.Cryptography supplies BLAKE2b primitives under its upstream license
 See restored NuGet packages and the pinned upstream source for dependency licenses.
 
 Paperclip integration additions: copyright 2026 Paperclip contributors, MIT.
+The integration is now distributed under the XBTPay project name.
 This is an unofficial integration, not endorsed or audited by these projects.

@@ -26,7 +26,7 @@ public sealed class XbtPlugin : BaseBTCPayServerPlugin
         "XBTSATS_X = XBTSATS_XBT * XBT_X;",
         "XBT_X = neoxex(XBT_X);"
     };
-    public const string DefaultIcon = "imlegacy/paperclip.svg";
+    public const string DefaultIcon = "imlegacy/xbtpay.svg";
 
     /// <summary>
     /// The XBT payment icon shown in checkout and in the middle of the QR codes. Operators
@@ -57,9 +57,10 @@ public sealed class XbtPlugin : BaseBTCPayServerPlugin
             ? value : DefaultSatsLabel;
     }
 
+    // Stable identity retained for existing installations and plugin dependencies.
     public override string Identifier => "Paperclip.XbtLightning";
-    public override string Name => "Paperclip XBT (test)";
-    public override string Description => "Bitcoin BLAKE2b on-chain and Lightning checkout. Not audited.";
+    public override string Name => "XBTPay (beta)";
+    public override string Description => "XBTPay: Bitcoin on-chain and Lightning checkout. Not independently audited.";
 
     public override void Execute(IServiceCollection services)
     {

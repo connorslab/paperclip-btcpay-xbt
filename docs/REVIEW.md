@@ -1,6 +1,6 @@
 # Pre-publication engineering review — 2026-10-02
 
-Scope: Paperclip's changes against BTCPay Server v2.4.4 and NBXplorer v2.6.13,
+Scope: XBTPay's changes against BTCPay Server v2.4.4 and NBXplorer v2.6.13,
 the CLN gateway, rate conversion, payment toggles, and public build/deployment
 materials. This was a source review and targeted verification, not an independent
 audit or a review of every upstream dependency.

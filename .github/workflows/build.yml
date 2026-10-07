@@ -1,4 +1,4 @@
-name: Build and test XBT integration
+name: Build and test XBTPay
 on:
   push:
   pull_request:

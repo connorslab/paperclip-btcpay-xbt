@@ -1,7 +1,7 @@
 @model BTCPayServer.Plugins.Xbt.XbtSettings
 @{
     Layout = "_Layout";
-    ViewData["Title"] = "XBT payments";
+    ViewData["Title"] = "XBTPay";
     var storeId = Context.Request.RouteValues["storeId"];
 }
 <div class="sticky-header"><h2>@ViewData["Title"]</h2></div>
@@ -24,7 +24,7 @@
             <input asp-for="LightningEnabled" class="form-check-input" />
             <label asp-for="LightningEnabled" class="form-check-label">XBT Lightning</label>
         </div>
-        <p class="text-secondary mb-0">Receive through your connected XBT Core Lightning node. Inbound channel liquidity is required.</p>
+        <p class="text-secondary mb-0">Receive through your connected Bitcoin Core Lightning or LND node. Inbound channel liquidity is required.</p>
     </div></div>
     <p class="text-secondary">Each enabled method also needs a configured wallet or node. On-chain spending and Bitcoin hardware-wallet signing are not supported by this test integration. Keep the receiving wallet's backup in compatible XBT wallet software.</p>
     <button type="submit" class="btn btn-primary">Save payment settings</button>
