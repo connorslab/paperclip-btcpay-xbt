@@ -143,6 +143,60 @@ index cfe0f20..26925c2 100644
      <script src="~/js/theme-switch.js" asp-append-version="true"></script>
      <noscript><style>.btcpay-theme-switch { display: none !important; }</style></noscript>
  }
+diff --git a/BTCPayServer/Views/Shared/_Footer.cshtml b/BTCPayServer/Views/Shared/_Footer.cshtml
+index db77d23..b886e26 100644
+--- a/BTCPayServer/Views/Shared/_Footer.cshtml
++++ b/BTCPayServer/Views/Shared/_Footer.cshtml
+@@ -3,25 +3,25 @@
+ <footer class="btcpay-footer d-print-none">
+     <div class="d-flex flex-wrap flex-column justify-content-between flex-xl-row gap-3">
+         <div class="d-flex flex-wrap justify-content-center justify-content-xl-start gap-4">
+-            <a href="https://github.com/btcpayserver/btcpayserver" target="_blank" rel="noreferrer noopener">
++            <a href="https://github.com/connorslab/paperclip-btcpay-xbt" target="_blank" rel="noreferrer noopener">
+                 <vc:icon symbol="social-github"/>
+-                <span>Github</span>
++                <span>XBTPay source</span>
+             </a>
+             <a href="https://chat.btcpayserver.org/" target="_blank" rel="noreferrer noopener">
+                 <vc:icon symbol="social-mattermost"/>
+-                <span>Mattermost</span>
++                <span>BTCPay community</span>
+             </a>
+             <a href="https://x.com/BtcpayServer" target="_blank" rel="noreferrer noopener">
+                 <vc:icon symbol="social-twitter"/>
+-                <span>Twitter</span>
++                <span>BTCPay on X</span>
+             </a>
+             <a href="https://telegram.me/btcpayserver" target="_blank" rel="noreferrer noopener">
+                 <vc:icon symbol="social-telegram"/>
+-                <span>Telegram</span>
++                <span>BTCPay Telegram</span>
+             </a>
+             <a href="https://btcpayserver.org/donate/" target="_blank" rel="noreferrer noopener">
+                 <vc:icon symbol="donate"/>
+-                <span text-translate="true">Donate</span>
++                <span text-translate="true">Support BTCPay</span>
+             </a>
+             <a asp-controller="UIHome" asp-action="SwaggerDocs" target="_blank">
+                 <vc:icon symbol="api"/>
+@@ -29,7 +29,7 @@
+             </a>
+             <a href="https://docs.btcpayserver.org/" target="_blank" rel="noreferrer noopener">
+                 <vc:icon symbol="docs"/>
+-                <span text-translate="true">Docs</span>
++                <span text-translate="true">BTCPay docs</span>
+             </a>
+             @if (!string.IsNullOrEmpty(_env.OnionUrl) && !Context.Request.IsOnion())
+             {
+@@ -42,7 +42,7 @@
+         @if (User.Identity.IsAuthenticated)
+         {
+             <div class="text-center">
+-                @_env.ToString()
++                XBTPay · Built on @_env.ToString()
+             </div>
+         }
+     </div>
 diff --git a/BTCPayServer/Views/Shared/_Layout.cshtml b/BTCPayServer/Views/Shared/_Layout.cshtml
 index 1a8e3fc..27665a4 100644
 --- a/BTCPayServer/Views/Shared/_Layout.cshtml
