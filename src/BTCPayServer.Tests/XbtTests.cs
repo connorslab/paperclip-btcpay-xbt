@@ -113,4 +113,31 @@ public class XbtTests
         quote = Quote(now); quote["ticker"]!["lastPrice"] = 0;
         Assert.Throws<FormatException>(() => NeoxExRateProvider.Parse(quote,now));
     }
+    [Theory]
+    [InlineData(null, XbtPlugin.DefaultIcon)]
+    [InlineData("", XbtPlugin.DefaultIcon)]
+    [InlineData("branding/xbt-icon.svg", "branding/xbt-icon.svg")]
+    [InlineData("https://example.com/xbt.png", "https://example.com/xbt.png")]
+    [InlineData("http://example.com/xbt.png", XbtPlugin.DefaultIcon)]
+    [InlineData("../secrets.svg", XbtPlugin.DefaultIcon)]
+    [InlineData("branding/../x.svg", XbtPlugin.DefaultIcon)]
+    [InlineData("javascript:alert(1)", XbtPlugin.DefaultIcon)]
+    [InlineData("branding/xbt-icon.exe", XbtPlugin.DefaultIcon)]
+    public void IconIsConfigurableAndFallsBackSafely(string? configured, string expected)
+    {
+        Assert.Equal(expected, XbtPlugin.ResolveIcon(configured));
+    }
+
+    [Theory]
+    [InlineData(null, XbtPlugin.DefaultSatsLabel)]
+    [InlineData("  ", XbtPlugin.DefaultSatsLabel)]
+    [InlineData("XBTC sats", "XBTC sats")]
+    [InlineData(" sats XBT ", "sats XBT")]
+    [InlineData("<b>sats</b>", XbtPlugin.DefaultSatsLabel)]
+    [InlineData(" leading", "leading")]
+    [InlineData("a label that is far too long", XbtPlugin.DefaultSatsLabel)]
+    public void SatsLabelIsConfigurableAndFallsBackSafely(string? configured, string expected)
+    {
+        Assert.Equal(expected, XbtPlugin.ResolveSatsLabel(configured));
+    }
 }

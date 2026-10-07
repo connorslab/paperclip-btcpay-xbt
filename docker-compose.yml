@@ -22,6 +22,11 @@ services:
       # CLN through the invoice-only gateway by default; or an LND connection string
       # from scripts/lnd-connection.sh (invoice-only macaroon, pinned TLS thumbprint).
       BTCPAY_XBTLIGHTNING: "${XBT_LIGHTNING:-type=clightning;server=unix:/gateway/lightning-rpc}"
+      # Optional: your own XBT payment icon (QR centre and checkout), a path under the
+      # web root (e.g. a mounted file) or an https URL. Empty keeps the default.
+      BTCPAY_XBTICON: "${XBT_ICON:-}"
+      # Optional: the label next to XBTSATS amounts (default "XBT sats").
+      BTCPAY_XBTSATSLABEL: "${XBT_SATS_LABEL:-}"
       BTCPAY_XBTEXPLORERURL: http://nbxplorer:24444
       BTCPAY_XBTEXPLORERCOOKIEFILE: /nbxplorer/Main/.cookie
       BTCPAY_POSTGRES: "User ID=postgres;Host=postgres;Database=btcpay;Password=${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}"
