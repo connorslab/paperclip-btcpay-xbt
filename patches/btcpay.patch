@@ -108,7 +108,7 @@ index 9f7375d..69fba9e 100644
              int pos = 0;
              InsertAt(currencies, "USD", pos++);
 diff --git a/BTCPayServer/Views/Shared/LayoutHead.cshtml b/BTCPayServer/Views/Shared/LayoutHead.cshtml
-index 018db66..bcb8859 100644
+index 018db66..ee5f1d5 100644
 --- a/BTCPayServer/Views/Shared/LayoutHead.cshtml
 +++ b/BTCPayServer/Views/Shared/LayoutHead.cshtml
 @@ -19,7 +19,7 @@
@@ -116,21 +116,25 @@ index 018db66..bcb8859 100644
  <meta name="robots" content="noindex">
  }
 -<title>@ViewData["Title"]</title>
-+<title>@ViewData["Title"] · XBTPay</title>
++<title>@ViewData["Title"] Â· XBTPay</title>
  @* CSS *@
  @{
      var isRtl = LocalizerService.IsRtl;
-@@ -46,8 +46,8 @@
+@@ -46,10 +46,10 @@
  }
  else
  {
 -    <meta name="theme-color" content="#51B13E">
 -    <link rel="icon" href="~/favicon.ico">
+-    <link rel="apple-touch-icon" href="~/img/icons/icon-512x512.png">
+-    <link rel="apple-touch-startup-image" href="~/img/splash.png">
 +    <meta name="theme-color" content="#14263d">
 +    <link rel="icon" href="~/imlegacy/xbtpay.svg" type="image/svg+xml">
-     <link rel="apple-touch-icon" href="~/img/icons/icon-512x512.png">
-     <link rel="apple-touch-startup-image" href="~/img/splash.png">
++    <link rel="apple-touch-icon" href="~/imlegacy/xbtpay-512.png">
++    <meta name="apple-mobile-web-app-title" content="XBTPay">
  }
+ @* Non-JS *@
+ <noscript>
 diff --git a/BTCPayServer/Views/Shared/LayoutHeadTheme.cshtml b/BTCPayServer/Views/Shared/LayoutHeadTheme.cshtml
 index cfe0f20..26925c2 100644
 --- a/BTCPayServer/Views/Shared/LayoutHeadTheme.cshtml
