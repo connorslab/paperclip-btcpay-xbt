@@ -98,7 +98,7 @@ index 9f7375d..69fba9e 100644
              output.PostElement.AppendHtml("<option value=\"SATS\">SATS - Satoshi</option>");
 +            // Plugin currencies are excluded from the fiat list above. Include the
 +            // XBT pricing units only when the plugin has registered them.
-+            foreach (var code in new[] { "XBT", "BTCB2", "XBTSATS", "USDC" })
++            foreach (var code in new[] { "XBT", "BTCB2", "XBTSATS" })
 +            {
 +                var currency = _currencies.GetCurrencyData(code, false);
 +                if (currency is null) continue;

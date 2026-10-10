@@ -24,8 +24,9 @@ patches. Do not install the plugin DLL alone into an existing production server.
 - Invoice currencies **XBT**, **BTCB2** (exactly 1 XBT), and **XBTSATS**
   (100,000,000 sats per XBT). Payment methods retain canonical IDs
   `XBT-CHAIN` and `XBT-LN`; BTCB2 is an alternate pricing ticker.
-- Optional USDC pricing from NeoxEX's BTCB2/USDC pair, with stale/invalid quote
-  checks. No implicit USDC/USD peg or SHA-256 BTC price fallback.
+- Explicit USD pricing using NeoxEX XBT/USDC multiplied by Kraken USDC/USD.
+  USDC remains an internal pricing bridge, not an invoice-currency suggestion.
+  No implicit USDC/USD peg or SHA-256 BTC price fallback; both quotes are required.
 - Watch-only receiving wallet setup. Spending keys belong in compatible XBT
   wallet software. On-chain sending, PayJoin and hardware signing are disabled.
 
@@ -203,3 +204,9 @@ The engineering review is **not an independent security audit**; see
 No private deployments, node credentials, TLS private keys, wallets or local
 test administrator setup scripts are distributed. MIT licensed; see
 [third-party notices](THIRD_PARTY_NOTICES.md).
+
+## Contribution credit
+
+The explicit USD pricing and additional XBT header/exchange regression tests
+are adapted from [SpectrGen1’s PR #3](https://github.com/connorslab/paperclip-btcpay-xbt/pull/3).
+The revision preserves the watch-only indexer guard and current XBTPay branding.

@@ -21,10 +21,11 @@ public sealed class XbtPlugin : BaseBTCPayServerPlugin
     public static readonly string[] RateRules = {
         "XBT_BTCB2 = 1;",
         "BTCB2_XBT = 1;",
-        "BTCB2_X = BTCB2_XBT * XBT_X;",
         "XBT_XBTSATS = 100000000;",
+        "XBT_USDC = neoxex(XBT_USDC);",
+        "XBT_USD = XBT_USDC * kraken(USDC_USD);",
+        "BTCB2_X = BTCB2_XBT * XBT_X;",
         "XBTSATS_X = XBTSATS_XBT * XBT_X;",
-        "XBT_X = neoxex(XBT_X);"
     };
     public const string DefaultIcon = "imlegacy/xbtpay.svg";
 
@@ -93,7 +94,6 @@ public sealed class XbtPlugin : BaseBTCPayServerPlugin
         services.AddCurrencyData(new CurrencyData { Code = "XBT", Name = "Bitcoin BLAKE2b", Divisibility = 8, Crypto = true, Symbol = "XBT" });
         services.AddCurrencyData(new CurrencyData { Code = "BTCB2", Name = "Bitcoin BLAKE2b (XBT)", Divisibility = 8, Crypto = true, Symbol = "BTCB2" });
         services.AddCurrencyData(new CurrencyData { Code = SatsCurrency, Name = satsLabel, Divisibility = 0, Crypto = true, Symbol = satsLabel });
-        services.AddCurrencyData(new CurrencyData { Code = "USDC", Name = "USD Coin (pricing only)", Divisibility = 6, Crypto = true, Symbol = "USDC" });
         services.AddRateProvider<NeoxExRateProvider>();
         var pmi = PaymentTypes.LN.GetPaymentMethodId("XBT");
         services.AddDefaultPrettyName(pmi, "XBT Lightning (BLAKE2b)");

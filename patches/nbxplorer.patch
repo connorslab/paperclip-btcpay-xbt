@@ -203,11 +203,12 @@ index 0000000..4c903db
 \ No newline at end of file
 diff --git a/NBXplorer.Tests/XbtTests.cs b/NBXplorer.Tests/XbtTests.cs
 new file mode 100644
-index 0000000..d2e3ac1
+index 0000000..1e89b78
 --- /dev/null
 +++ b/NBXplorer.Tests/XbtTests.cs
-@@ -0,0 +1,34 @@
+@@ -0,0 +1,68 @@
 +using System.IO;
++using System.Linq;
 +using NBitcoin;
 +using NBitcoin.DataEncoders;
 +using Newtonsoft.Json.Linq;
@@ -239,6 +240,39 @@ index 0000000..d2e3ac1
 +            Assert.Equal((string)vector["hash"], header.GetHash().ToString());
 +            Assert.Equal(bytes, header.ToBytes());
 +        }
++    }
++
++    [Fact]
++    public void CanonicalHeaderV2VectorsMatchKnotsAndRoundTrip()
++    {
++        var network = XbtNetwork.Instance.Mainnet;
++        foreach (var vector in JArray.Parse(File.ReadAllText("Data/xbt-header-v2-vectors.json")))
++        {
++            var bytes = Encoders.Hex.DecodeData((string)vector["serialized"]);
++            var header = network.Consensus.ConsensusFactory.CreateBlockHeader();
++            header.ReadWrite(bytes, network);
++            Assert.Equal((string)vector["block_hash"], header.GetHash().ToString());
++            Assert.Equal(bytes, header.ToBytes());
++        }
++    }
++
++    [Fact]
++    public void MixedLegacyAndV2HeaderStreamConsumesExactLengths()
++    {
++        var network = XbtNetwork.Instance.Mainnet;
++        var vectors = JArray.Parse(File.ReadAllText("Data/xbt-headers.json"));
++        var legacy = Encoders.Hex.DecodeData((string)vectors[0]["hex"]);
++        var v2 = Encoders.Hex.DecodeData((string)vectors[1]["hex"]);
++        using var stream = new MemoryStream(legacy.Concat(v2).ToArray());
++        var bitcoinStream = new BitcoinStream(stream, false) { ConsensusFactory = network.Consensus.ConsensusFactory };
++        var first = network.Consensus.ConsensusFactory.CreateBlockHeader();
++        first.ReadWrite(bitcoinStream);
++        Assert.Equal(80, stream.Position);
++        var second = network.Consensus.ConsensusFactory.CreateBlockHeader();
++        second.ReadWrite(bitcoinStream);
++        Assert.Equal(244, stream.Position);
++        Assert.Equal((string)vectors[0]["hash"], first.GetHash().ToString());
++        Assert.Equal((string)vectors[1]["hash"], second.GetHash().ToString());
 +    }
 +}
 diff --git a/NBXplorer/Configuration/RPCArgs.cs b/NBXplorer/Configuration/RPCArgs.cs
@@ -274,3 +308,37 @@ index 2d31f79..a365e78 100644
  
  			if (request.ImportKeysToRPC && trackedSourceContext.RpcClient is null)
  			{
+
+diff --git a/NBXplorer.Tests/Data/xbt-header-v2-vectors.json b/NBXplorer.Tests/Data/xbt-header-v2-vectors.json
+new file mode 100644
+index 0000000..c071782
+--- /dev/null
++++ b/NBXplorer.Tests/Data/xbt-header-v2-vectors.json
+@@ -0,0 +1,27 @@
++[
++  {
++    "name": "profile_0_time_offset",
++    "serialized": "000000a01f1e1d1c1b1a191817161514131211100f0e0d0c0b0a0908070605040302010000112233445566778899aabbccddeeff00102030405060708090a0b0c0d0e0f0a8913577ffff001d0df0ad0b44332211efcdab89ffeeddccbbaa998877665544332211005802000003001c000000000000000000000000000000000040d10c008967452301efcdab8967452301efcdab8967452301efcdab8967452301efcdab",
++    "block_hash": "4b495dcf05d70a49785b799b22284fbcd9dd1209237c53c87e4674b15587d704"
++  },
++  {
++    "name": "profile_1_time_offset_nonzero_key",
++    "serialized": "000000a01f1e1d1c1b1a191817161514131211100f0e0d0c0b0a0908070605040302010000112233445566778899aabbccddeeff00102030405060708090a0b0c0d0e0f0a8913577ffff001d0df0ad0b44332211efcdab89ffeeddccbbaa998877665544332211005802000001001d00efcdab8967452301efcdab896745230141d10c008967452301efcdab8967452301efcdab8967452301efcdab8967452301efcdab",
++    "block_hash": "44b383821dea9af8d7d81ba7741c34ac8c07ab81ab081d8b6bf0575a787a1eef"
++  },
++  {
++    "name": "profile_2_time_offset_selector_7",
++    "serialized": "000000a01f1e1d1c1b1a191817161514131211100f0e0d0c0b0a0908070605040302010000112233445566778899aabbccddeeff00102030405060708090a0b0c0d0e0f0a8913577ffff001d0df0ad0bddccbbaaefcdab89ffeeddccbbaa998877665544332211005802000003001e071032547698badcfe1032547698badcfe40d10c008967452301efcdab8967452301efcdab8967452301efcdab8967452301efcdab",
++    "block_hash": "06fddae4eaca10b85c87a3c7ed71717fd83998a32fe13f4780722b1f5d882e76"
++  },
++  {
++    "name": "profile_3_time_offset_selector_8",
++    "serialized": "000000a01f1e1d1c1b1a191817161514131211100f0e0d0c0b0a0908070605040302010000112233445566778899aabbccddeeff00102030405060708090a0b0c0d0e0f0a8913577ffff001d0df0ad0b44332211040302010000000000000000ffffffffffffffff5802000003001f081032547698badcfe1032547698badcfe40d10c008967452301efcdab8967452301efcdab8967452301efcdab8967452301efcdab",
++    "block_hash": "e6304527536f619d3ad71b1c21a22fdef9068498acc561b4100b034373a87058"
++  },
++  {
++    "name": "profile_0_time_offset_disabled_selector_255",
++    "serialized": "000000a01f1e1d1c1b1a191817161514131211100f0e0d0c0b0a0908070605040302010000112233445566778899aabbccddeeff00102030405060708090a0b0c0d0e0f000943577ffff001dffffffff44332211efcdab89ffeeddccbbaa9988776655443322110088776655030018ff2222222222222222111111111111111140d10c000000000000000000000000000000000000000000000000000000000000000000",
++    "block_hash": "c31b24420d67f86e524f980a24a18e88f36c821046d5288251b5d88998c69f86"
++  }
++]
