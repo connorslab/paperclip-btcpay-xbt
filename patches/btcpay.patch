@@ -296,3 +296,21 @@ index 071facf..7ffcc1c 100644
      <add key="api.nuget.org" value="https://api.nuget.org/v3/index.json" />
    </packageSources>
  </configuration>
+diff --git a/BTCPayServer/Payments/PaymentMethodId.cs b/BTCPayServer/Payments/PaymentMethodId.cs
+--- a/BTCPayServer/Payments/PaymentMethodId.cs
++++ b/BTCPayServer/Payments/PaymentMethodId.cs
+@@ -114,5 +114,6 @@ namespace BTCPayServer.Payments
+         static readonly FrozenSet<string> LegacySupportedCryptos = new HashSet<string>()
+         {
++            "XBT",
+             "XMR",
+             "ZEC",
+             "LBTC",
+diff --git a/Dockerfile b/Dockerfile
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -40,3 +40,4 @@
+ COPY --from=builder "/app" .
++RUN chmod -R a+rX /app/wwwroot
+ COPY --chmod=0755 Docker/btcpay-host /usr/local/bin/btcpay-host
+ COPY --chmod=0755 Docker/docker-entrypoint.sh docker-entrypoint.sh
