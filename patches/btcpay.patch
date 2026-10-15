@@ -296,3 +296,13 @@ index 071facf..7ffcc1c 100644
      <add key="api.nuget.org" value="https://api.nuget.org/v3/index.json" />
    </packageSources>
  </configuration>
+diff --git a/BTCPayServer/Payments/PaymentMethodId.cs b/BTCPayServer/Payments/PaymentMethodId.cs
+--- a/BTCPayServer/Payments/PaymentMethodId.cs
++++ b/BTCPayServer/Payments/PaymentMethodId.cs
+@@ -114,5 +114,6 @@ namespace BTCPayServer.Payments
+         static readonly FrozenSet<string> LegacySupportedCryptos = new HashSet<string>()
+         {
++            "XBT",
+             "XMR",
+             "ZEC",
+             "LBTC",

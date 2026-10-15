@@ -7,6 +7,19 @@ namespace BTCPayServer.Tests;
 
 public class XbtTests
 {
+    [Theory]
+    [InlineData("XBT_LN", "XBT-LN")]
+    [InlineData("XBT_CHAIN", "XBT-CHAIN")]
+    [InlineData("XBT-LightningLike", "XBT-LN")]
+    [InlineData("XBT", "XBT-CHAIN")]
+    [InlineData("XBT-LN", "XBT-LN")]
+    [InlineData("BTC_LN", "BTC-LN")]
+    public void LegacyPaymentMethodIdsRemainNetworkSpecific(string input, string expected)
+    {
+        Assert.Equal(expected, Payments.PaymentMethodId.Parse(input).ToString());
+        Assert.Equal(Payments.PaymentMethodId.Parse(expected), Payments.PaymentMethodId.Parse(input));
+    }
+
     [Fact]
     public void MissingXbtNetworkNeverFallsBackToBtc()
     {
