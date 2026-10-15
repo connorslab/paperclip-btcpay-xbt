@@ -306,3 +306,11 @@ diff --git a/BTCPayServer/Payments/PaymentMethodId.cs b/BTCPayServer/Payments/Pa
              "XMR",
              "ZEC",
              "LBTC",
+diff --git a/Dockerfile b/Dockerfile
+--- a/Dockerfile
++++ b/Dockerfile
+@@ -40,3 +40,4 @@
+ COPY --from=builder "/app" .
++RUN chmod -R a+rX /app/wwwroot
+ COPY --chmod=0755 Docker/btcpay-host /usr/local/bin/btcpay-host
+ COPY --chmod=0755 Docker/docker-entrypoint.sh docker-entrypoint.sh
