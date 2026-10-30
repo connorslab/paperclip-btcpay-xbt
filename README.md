@@ -19,6 +19,8 @@ patches. Do not install the plugin DLL alone into an existing production server.
 - XBT on-chain receiving with per-invoice addresses and confirmation tracking.
 - BOLT11 Lightning checkout using **CLN or LND**. The CLN gateway includes
   private-channel route hints; LND connects through its native REST API.
+- Optional BOLT 12 offer checkout with LND: one single-use offer per invoice
+  (see [BOLT 12 offers](#bolt-12-offers-lnd)).
 - Independent **on-chain** and **Lightning** switches under
   **Integrations → XBTPay**. They affect new invoices, not existing orders.
 - Invoice currencies **XBT**, **BTCB2** (exactly 1 XBT), and **XBTSATS**
@@ -171,6 +173,21 @@ reuse the printed ID for other credentials. LND has no atomic reserve-ID operati
 so coordinate explicit IDs between administrators. Invalid certificates stop setup
 before any credential is baked. Revoke this credential with
 `lncli deletemacaroonid <root key id>`.
+
+### BOLT 12 offers (LND)
+
+With an LND that has the offers RPC (`paulscode/lightning-fork`, `/v2/offers`),
+a store can also show each invoice as a BOLT 12 offer (`lno1...`): in the
+store's XBTPay settings turn on **XBT Lightning BOLT 12 offers**. It is off by
+default and uses the store's Lightning connection, with the same macaroon
+(`invoices:read` and `invoices:write`). Each invoice gets its own offer for the
+exact amount, with the invoice id in its description and the invoice's
+expiration as its expiry. XBTPay checks the offer's invoices every few seconds,
+records a settled one as the payment and then disables the offer; it keeps
+checking for an hour in case a payment settles just after the deadline. A payer
+may pay a little more than asked (BOLT 12 allows it), which BTCPay shows as
+overpaid. CLN stores and stores without an amount (top-up invoices) do not get
+the BOLT 12 method.
 
 ## Safety and limitations
 

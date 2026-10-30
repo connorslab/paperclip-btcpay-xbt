@@ -26,6 +26,13 @@
         </div>
         <p class="text-secondary mb-0">Receive through your connected Bitcoin Core Lightning or LND node. Inbound channel liquidity is required.</p>
     </div></div>
+    <div class="card mb-4"><div class="card-body">
+        <div class="form-check form-switch mb-2">
+            <input asp-for="Bolt12Enabled" class="form-check-input" />
+            <label asp-for="Bolt12Enabled" class="form-check-label">XBT Lightning BOLT 12 offers</label>
+        </div>
+        <p class="text-secondary mb-0">Also offer each invoice as a single-use BOLT 12 offer (lno1…) for wallets that pay offers. Needs the store's Lightning node to be an LND with offers support (lightning-fork); the same invoice permissions as BOLT 11 are enough. Each offer is for the exact amount and expires with the invoice.</p>
+    </div></div>
     <p class="text-secondary">Each enabled method also needs a configured wallet or node. On-chain spending and Bitcoin hardware-wallet signing are not supported by this test integration. Keep the receiving wallet's backup in compatible XBT wallet software.</p>
     <button type="submit" class="btn btn-primary">Save payment settings</button>
 </form>

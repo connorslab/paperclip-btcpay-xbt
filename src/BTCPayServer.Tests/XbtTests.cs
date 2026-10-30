@@ -192,4 +192,142 @@ public class XbtTests
     {
         Assert.Equal(expected, XbtPlugin.ResolveSatsLabel(configured));
     }
+
+    [Fact]
+    public void Bolt12PaymentMethodIdIsXbtSpecific()
+    {
+        var pmi = Bolt12.GetPaymentMethodId("XBT");
+        Assert.Equal("XBT-BOLT12", pmi.ToString());
+        Assert.Equal(pmi, Payments.PaymentMethodId.Parse("XBT-BOLT12"));
+        Assert.NotEqual(Payments.PaymentTypes.LN.GetPaymentMethodId("XBT"), pmi);
+    }
+
+    [Fact]
+    public void Bolt12IsOptIn()
+    {
+        var store = new Data.StoreData();
+        Assert.False(XbtSettings.From(store).Bolt12Enabled);
+        new XbtSettings { OnChainEnabled = true, LightningEnabled = true, Bolt12Enabled = true }.Apply(store);
+        Assert.True(XbtSettings.From(store).Bolt12Enabled);
+        new XbtSettings { OnChainEnabled = true, LightningEnabled = true, Bolt12Enabled = false }.Apply(store);
+        var read = XbtSettings.From(store);
+        Assert.False(read.Bolt12Enabled);
+        Assert.True(read.LightningEnabled);
+    }
+
+    [Fact]
+    public void OffersClientReachesTheStoreLndClient()
+    {
+        // TryCreate reads two non-public fields of BTCPayServer.Lightning; fail loudly if an
+        // update renames them rather than silently turning BOLT 12 off.
+        Assert.True(LndOffersClient.IsSupported);
+        var lnd = new Lightning.LND.LndClient(new Lightning.LND.LndRestSettings(new Uri("https://node.example:8080/"))
+        {
+            Macaroon = new byte[] { 1, 2, 3 }
+        }, NBitcoin.Network.Main);
+        Assert.NotNull(LndOffersClient.TryCreate(lnd));
+    }
+
+    sealed class FakeLnd : System.Net.Http.HttpMessageHandler
+    {
+        public readonly System.Collections.Generic.List<(string Path, string? Macaroon, JObject Body)> Requests = new();
+        public required System.Func<string, string> Reply { get; init; }
+        protected override async System.Threading.Tasks.Task<System.Net.Http.HttpResponseMessage> SendAsync(
+            System.Net.Http.HttpRequestMessage request, System.Threading.CancellationToken cancellationToken)
+        {
+            var body = request.Content is null ? new JObject() : JObject.Parse(await request.Content.ReadAsStringAsync(cancellationToken));
+            request.Headers.TryGetValues("Grpc-Metadata-macaroon", out var macaroon);
+            var path = request.RequestUri!.AbsolutePath;
+            Requests.Add((path, macaroon is null ? null : string.Join(",", macaroon), body));
+            return new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            {
+                Content = new System.Net.Http.StringContent(Reply(path))
+            };
+        }
+    }
+
+    static LndOffersClient OffersClient(FakeLnd fake) => new(new System.Net.Http.HttpClient(fake), "https://node.example:8080/",
+        new Lightning.LND.LndAuthentication.FixedMacaroonAuthentication(new byte[] { 0xab, 0xcd }));
+
+    [Fact]
+    public async System.Threading.Tasks.Task OffersClientCreatesSingleUseOffer()
+    {
+        var offerId = new byte[32]; offerId[0] = 0x5a;
+        var fake = new FakeLnd
+        {
+            Reply = _ => new JObject
+            {
+                ["offer"] = new JObject { ["offer_id"] = Convert.ToBase64String(offerId), ["bolt12"] = "lno1abc" },
+                ["created"] = true
+            }.ToString()
+        };
+        var offer = await OffersClient(fake).CreateOffer(new Bolt12OfferRequest("Shop (invoice X1)", 1_500_000, 1_900_000_000, "Shop", "xbtpay:X1"), default);
+        Assert.Equal("5a" + new string('0', 62), offer.OfferId);
+        Assert.Equal("lno1abc", offer.Bolt12);
+        Assert.True(offer.Created);
+        var (path, macaroon, body) = Assert.Single(fake.Requests);
+        Assert.Equal("/v2/offers", path);
+        Assert.Equal("abcd", macaroon);
+        Assert.Equal("1500000", body.Value<string>("amount_msat"));
+        Assert.Equal("1900000000", body.Value<string>("absolute_expiry"));
+        Assert.Equal("Shop (invoice X1)", body.Value<string>("description"));
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task OffersClientOnlyReturnsInvoicesOfTheAskedOffer()
+    {
+        var mine = new byte[32]; mine[0] = 1;
+        var other = new byte[32]; other[0] = 2;
+        var hash = new byte[32]; hash[31] = 7;
+        var fake = new FakeLnd
+        {
+            Reply = _ => new JObject
+            {
+                ["invoices"] = new JArray(
+                    new JObject { ["offer_id"] = Convert.ToBase64String(mine), ["payment_hash"] = Convert.ToBase64String(hash),
+                        ["state"] = "SETTLED", ["amount_paid_msat"] = "1500000", ["created_at"] = "1800000000" },
+                    new JObject { ["offer_id"] = Convert.ToBase64String(other), ["payment_hash"] = Convert.ToBase64String(hash),
+                        ["state"] = "SETTLED", ["amount_paid_msat"] = "9999000", ["created_at"] = "1800000000" })
+            }.ToString()
+        };
+        var mineHex = NBitcoin.DataEncoders.Encoders.Hex.EncodeData(mine);
+        var paid = Assert.Single(await OffersClient(fake).ListOfferInvoices(mineHex, default));
+        Assert.Equal("SETTLED", paid.State);
+        Assert.Equal(1_500_000UL, paid.AmountPaidMsat);
+        Assert.Equal(NBitcoin.DataEncoders.Encoders.Hex.EncodeData(hash), paid.PaymentHash);
+        var request = Assert.Single(fake.Requests);
+        Assert.Equal("/v2/offers/invoices", request.Path);
+        Assert.Equal(Convert.ToBase64String(mine), request.Body.Value<string>("offer_id"));
+    }
+
+    [Fact]
+    public async System.Threading.Tasks.Task OffersClientReadsProofAndPayerNote()
+    {
+        var preimage = new byte[32]; preimage[0] = 9;
+        var fake = new FakeLnd
+        {
+            Reply = path => path.StartsWith("/v1/invoice/")
+                ? new JObject { ["r_preimage"] = Convert.ToBase64String(preimage) }.ToString()
+                : new JObject { ["type"] = "invoice", ["invoice_request"] = new JObject { ["payer_note"] = "Thanks!" } }.ToString()
+        };
+        var client = OffersClient(fake);
+        Assert.Equal(NBitcoin.DataEncoders.Encoders.Hex.EncodeData(preimage), await client.GetPreimage("ab01", default));
+        Assert.Equal("Thanks!", await client.GetPayerNote("lni1xyz", default));
+        Assert.Equal("/v1/invoice/ab01", fake.Requests[0].Path);
+        Assert.Equal("/v2/offers/decode", fake.Requests[1].Path);
+        Assert.Equal("lni1xyz", fake.Requests[1].Body.Value<string>("bolt12"));
+    }
+
+    [Fact]
+    public void Bolt12PaymentsShowAsLightningPayments()
+    {
+        // The invoice page lists a payment whose handler is a Lightning one, reading its
+        // destination and proof from LightningPaymentData.
+        var details = JObject.FromObject(new Bolt12PaymentDetails { PaymentHash = "aa", Preimage = "bb", Invoice = "lni1xyz", PayerNote = "hi" });
+        var read = details.ToObject<Client.Models.LightningPaymentData>()!;
+        Assert.Equal("aa", read.PaymentHash);
+        Assert.Equal("bb", read.Preimage);
+        Assert.Equal("lni1xyz", read.BOLT11);
+        Assert.True(typeof(Payments.Lightning.ILightningPaymentHandler).IsAssignableFrom(typeof(Bolt12PaymentHandler)));
+    }
 }

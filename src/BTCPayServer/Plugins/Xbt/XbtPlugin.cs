@@ -101,5 +101,12 @@ public sealed class XbtPlugin : BaseBTCPayServerPlugin
         services.AddSingleton<IPaymentLinkExtension>(p => ActivatorUtilities.CreateInstance<LightningPaymentLinkExtension>(p, network, pmi));
         services.AddSingleton<ICheckoutModelExtension>(p => ActivatorUtilities.CreateInstance<LNCheckoutModelExtension>(p, network, pmi));
         services.AddSingleton<IPaymentMethodBitpayAPIExtension>(p => ActivatorUtilities.CreateInstance<LightningPaymentMethodBitpayAPIExtension>(p, pmi));
+        var bolt12 = Bolt12.GetPaymentMethodId("XBT");
+        services.AddDefaultPrettyName(bolt12, "XBT Lightning BOLT 12");
+        services.AddSingleton<IPaymentMethodHandler>(p => ActivatorUtilities.CreateInstance<Bolt12PaymentHandler>(p, network, bolt12));
+        services.AddSingleton<IPaymentLinkExtension>(p => ActivatorUtilities.CreateInstance<Bolt12PaymentLinkExtension>(p, bolt12));
+        services.AddSingleton<ICheckoutModelExtension>(p => ActivatorUtilities.CreateInstance<Bolt12CheckoutModelExtension>(p, network, bolt12));
+        services.AddSingleton<IPaymentMethodBitpayAPIExtension>(p => ActivatorUtilities.CreateInstance<Bolt12PaymentMethodBitpayAPIExtension>(p, bolt12));
+        services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService>(p => ActivatorUtilities.CreateInstance<Bolt12Listener>(p, network, bolt12));
     }
 }
